@@ -54,7 +54,8 @@ const LineChart = () => {
 
     if (connectMode) {
       setManuallySelectedPoints(prev => {
-        const newPoints = [...prev, d];
+        let newPoints = manuallySelectedPoints;
+        newPoints = [...prev, d];
         if (newPoints.length === 2) {
           setSelectedRanges(prev => [...prev, getPointsBetween(data, newPoints[0], newPoints[1])]);
           return [];

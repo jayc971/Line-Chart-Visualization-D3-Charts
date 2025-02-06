@@ -10,7 +10,7 @@ interface ChartProps {
   adjustMode: boolean;
   deleteMode: boolean;
   selectedIndex: number | null;
-  onPointClick: (event: any, d: DataPoint) => void;
+  onPointClick: (event: any, DataPoint: DataPoint) => void;
   onPointDrag: (index: number, rtime: number, intensity: number) => void;
   tooltipRef: React.MutableRefObject<d3.Selection<HTMLDivElement, unknown, null, undefined> | null>;
 }
