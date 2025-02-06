@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { JSX } from 'react';
 import { Activity, Move, Trash2, X } from 'lucide-react';
 
 interface ModeControlsProps {
