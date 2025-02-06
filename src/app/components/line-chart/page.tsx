@@ -1,9 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react';
-import ChartComponent from '../chart/page';
-import { Controls } from '../controls/page';
-import { Tooltip } from '../tooltip/page';
-import {DataPoint} from '../types/page';
+import ChartComponent from '@/app/components/ChartComponent/ChartComponent'; 
+import { Controls } from '@/app/components/controls/page';
+import { Tooltip } from '@/app/components/tooltip/page';
+import {DataPoint} from '@/app/components/types/page';
 
 const LineChart = () => {
   const [selectedRanges, setSelectedRanges] = useState<DataPoint[][]>([]);

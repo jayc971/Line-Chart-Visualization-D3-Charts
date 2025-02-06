@@ -1,7 +1,12 @@
 'use client';
+
 import * as d3 from 'd3';
 import { useEffect, useRef } from 'react';
-import { DataPoint } from '../types/page'; 
+
+interface DataPoint {
+  rtime: number;
+  intensity: number;
+}
 
 interface ChartProps {
   data: DataPoint[];
@@ -10,12 +15,12 @@ interface ChartProps {
   adjustMode: boolean;
   deleteMode: boolean;
   selectedIndex: number | null;
-  onPointClick: (event: any, d: DataPoint) => void;
+  onPointClick: (event: React.MouseEvent, d: DataPoint) => void;
   onPointDrag: (index: number, rtime: number, intensity: number) => void;
   tooltipRef: React.MutableRefObject<d3.Selection<HTMLDivElement, unknown, null, undefined> | null>;
 }
 
-const ChartComponent: React.FC<ChartProps> = ({
+const ChartComponent = ({
   data,
   selectedRanges,
   connectMode,
@@ -25,11 +30,11 @@ const ChartComponent: React.FC<ChartProps> = ({
   onPointClick,
   onPointDrag,
   tooltipRef,
-}) => {
+}: ChartProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
-    if (!svgRef.current || !data.length) return;
+    if (!svgRef.current || !data.length || !tooltipRef.current) return;
 
     const width = 800;
     const height = 400;
@@ -109,91 +114,80 @@ const ChartComponent: React.FC<ChartProps> = ({
       .style('font-size', '12px')
       .text('Data Line');
 
-      const dragHandler = d3.drag()
-  .on('start', function (event, d) {
-    if (!adjustMode) return;
+    const dragHandler = d3.drag<SVGCircleElement, DataPoint, unknown>()
+      .on('start', function (event) {
+        if (!adjustMode) return;
+        
+        const [xStart, yStart] = d3.pointer(event, svg.node());
+        const index = parseInt(d3.select(this).attr('data-index') || '0');
+        const point = data[index];
+        const offsetX = xStart - xScale(point.rtime);
+        const offsetY = yStart - yScale(point.intensity);
 
-    // Get the initial cursor position relative to the SVG
-    const [xStart, yStart] = d3.pointer(event, svg.node());
-    
-    // Compute offset between cursor and actual point position
-    const index = parseInt(d3.select(this).attr('data-index'));
-    const point = data[index];
-    const offsetX = xStart - xScale(point.rtime);
-    const offsetY = yStart - yScale(point.intensity);
+        d3.select(this)
+          .raise()
+          .classed('active', true)
+          .attr('data-offset-x', offsetX.toString())
+          .attr('data-offset-y', offsetY.toString());
+      })
+      .on('drag', function (event) {
+        if (!adjustMode) return;
 
-    d3.select(this).raise().classed('active', true);
+        const offsetX = parseFloat(d3.select(this).attr('data-offset-x') || '0');
+        const offsetY = parseFloat(d3.select(this).attr('data-offset-y') || '0');
 
-    // Store offset in the DOM element for later use
-    d3.select(this).attr('data-offset-x', offsetX);
-    d3.select(this).attr('data-offset-y', offsetY);
-  })
-  .on('drag', function (event, d) {
-    if (!adjustMode) return;
+        const [x, y] = d3.pointer(event, svg.node());
+        const adjustedX = x - offsetX;
+        const adjustedY = y - offsetY;
 
-    // Retrieve stored offsets
-    const offsetX = parseFloat(d3.select(this).attr('data-offset-x'));
-    const offsetY = parseFloat(d3.select(this).attr('data-offset-y'));
+        const rtime = Math.round(xScale.invert(adjustedX));
+        const intensity = Math.round(yScale.invert(adjustedY));
 
-    // Get new cursor position and apply the stored offset
-    const [x, y] = d3.pointer(event, svg.node());
-    const adjustedX = x - offsetX;
-    const adjustedY = y - offsetY;
+        const boundedRtime = Math.max(0, Math.min(130, rtime));
+        const boundedIntensity = Math.max(0, Math.min(10000, intensity));
 
-    // Convert to data coordinates
-    const rtime = Math.round(xScale.invert(adjustedX));
-    const intensity = Math.round(yScale.invert(adjustedY));
+        const index = parseInt(d3.select(this).attr('data-index') || '0');
+        onPointDrag(index, boundedRtime, boundedIntensity);
 
-    // Keep within bounds
-    const boundedRtime = Math.max(0, Math.min(130, rtime));
-    const boundedIntensity = Math.max(0, Math.min(10000, intensity));
+        d3.select(this)
+          .attr('cx', xScale(boundedRtime))
+          .attr('cy', yScale(boundedIntensity));
+      })
+      .on('end', function () {
+        d3.select(this).classed('active', false);
+      });
 
-    // Update state
-    const index = parseInt(d3.select(this).attr('data-index'));
-    onPointDrag(index, boundedRtime, boundedIntensity);
-
-    // Move the visual element
-    d3.select(this)
-      .attr('cx', xScale(boundedRtime))
-      .attr('cy', yScale(boundedIntensity));
-  })
-  .on('end', function () {
-    d3.select(this).classed('active', false);
-  });
-
-    
-
-    const points = svg.selectAll('.point')
+    const points = svg.selectAll<SVGCircleElement, DataPoint>('.point')
       .data(data)
-      .enter().append('circle')
+      .enter()
+      .append('circle')
       .attr('class', 'point')
       .attr('cx', d => xScale(d.rtime))
       .attr('cy', d => yScale(d.intensity))
-      .attr('r', d => data.findIndex(p => p === d) === selectedIndex ? 6 : 4)
-      .attr('data-index', (d, i) => i)
+      .attr('r', (d, i) => i === selectedIndex ? 6 : 4)
+      .attr('data-index', (d, i) => i.toString())
       .style('cursor', adjustMode ? 'move' : 'pointer')
       .style('fill', (d, i) => i === selectedIndex ? '#ff4444' : '#4682b4')
       .call(dragHandler);
 
-    // Tooltip events
-    points.on('mouseover', (event, d) => {
-      tooltipRef.current!
-        .style("opacity", 1)
-        .style("display", "block")
-        .html(`Intensity: ${d.intensity.toFixed(2)}<br>Retention Time: ${d.rtime}`)
-        .style("left", `${event.pageX}px`)
-        .style("top", `${event.pageY - 28}px`);
-    }).on('mouseout', () => {
-      tooltipRef.current!
-        .transition()
-        .duration(200)
-        .style("opacity", 0)
-        .on("end", () => tooltipRef.current!.style("display", "none"));
-    });
+    points
+      .on('mouseover', (event, d) => {
+        tooltipRef.current!
+          .style("opacity", 1)
+          .style("display", "block")
+          .html(`Intensity: ${d.intensity.toFixed(2)}<br>Retention Time: ${d.rtime}`)
+          .style("left", `${event.pageX}px`)
+          .style("top", `${event.pageY - 28}px`);
+      })
+      .on('mouseout', () => {
+        tooltipRef.current!
+          .transition()
+          .duration(200)
+          .style("opacity", 0)
+          .on("end", () => tooltipRef.current!.style("display", "none"));
+      })
+      .on('click', onPointClick);
 
-    points.on('click', onPointClick);
-
-    // Draw selected ranges
     const polygonGroup = svg.append('g');
     selectedRanges.forEach(range => {
       polygonGroup.append('polygon')
@@ -202,8 +196,7 @@ const ChartComponent: React.FC<ChartProps> = ({
         .attr('fill-opacity', 0.2)
         .attr('stroke', '#4682b4');
     });
-
-  }, [data, selectedRanges, connectMode, adjustMode, deleteMode, selectedIndex, onPointClick, onPointDrag]);
+  }, [data, selectedRanges, connectMode, adjustMode, deleteMode, selectedIndex, onPointClick, onPointDrag, tooltipRef]);
 
   return <svg ref={svgRef} className="w-full max-w-4xl" />;
 };
