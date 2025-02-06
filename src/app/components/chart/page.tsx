@@ -1,21 +1,21 @@
 'use client';
 import * as d3 from 'd3';
 import { useEffect, useRef } from 'react';
-import {DataPoint} from '../types/page'; 
+import { DataPoint } from '../types/page'; 
 
 interface ChartProps {
   data: DataPoint[];
-  selectedRanges: DataPoint[][]; // Make sure this is correct
+  selectedRanges: DataPoint[][];
   connectMode: boolean;
   adjustMode: boolean;
   deleteMode: boolean;
   selectedIndex: number | null;
-  onPointClick: (event: any, d: DataPoint) => void; // Ensure 'd' is correctly typed
+  onPointClick: (event: any, d: DataPoint) => void;
   onPointDrag: (index: number, rtime: number, intensity: number) => void;
   tooltipRef: React.MutableRefObject<d3.Selection<HTMLDivElement, unknown, null, undefined> | null>;
 }
 
-export const ChartComponent: React.FC<ChartProps> = ({
+const ChartComponent: React.FC<ChartProps> = ({
   data,
   selectedRanges,
   connectMode,
@@ -207,3 +207,5 @@ export const ChartComponent: React.FC<ChartProps> = ({
 
   return <svg ref={svgRef} className="w-full max-w-4xl" />;
 };
+
+export default ChartComponent;

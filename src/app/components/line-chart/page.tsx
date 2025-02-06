@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import {ChartComponent} from '../chart/page';
+import ChartComponent from '../chart/page';
 import { Controls } from '../controls/page';
 import { Tooltip } from '../tooltip/page';
 import {DataPoint} from '../types/page';
