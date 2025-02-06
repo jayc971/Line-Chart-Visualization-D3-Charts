@@ -10,8 +10,7 @@ interface ChartProps {
   adjustMode: boolean;
   deleteMode: boolean;
   selectedIndex: number | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onPointClick: (event: any, DataPoint: DataPoint) => void;
+  onPointClick: (event: any, d: DataPoint) => void;
   onPointDrag: (index: number, rtime: number, intensity: number) => void;
   tooltipRef: React.MutableRefObject<d3.Selection<HTMLDivElement, unknown, null, undefined> | null>;
 }
@@ -111,7 +110,7 @@ export const Chart: React.FC<ChartProps> = ({
       .text('Data Line');
 
       const dragHandler = d3.drag()
-  .on('start', function (event) {
+  .on('start', function (event, d) {
     if (!adjustMode) return;
 
     // Get the initial cursor position relative to the SVG
@@ -129,7 +128,7 @@ export const Chart: React.FC<ChartProps> = ({
     d3.select(this).attr('data-offset-x', offsetX);
     d3.select(this).attr('data-offset-y', offsetY);
   })
-  .on('drag', function (event) {
+  .on('drag', function (event, d) {
     if (!adjustMode) return;
 
     // Retrieve stored offsets

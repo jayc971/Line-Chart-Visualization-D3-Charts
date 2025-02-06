@@ -77,10 +77,12 @@ const LineChart = () => {
     setData(newData.sort((a, b) => a.rtime - b.rtime));
   };
 
-  const toggleMode = (mode: 'connect' | 'adjust' | 'delete') => {
+  
+const toggleMode = (mode: 'connect' | 'adjust' | 'delete' | 'move') => {
     setConnectMode(mode === 'connect');
     setAdjustMode(mode === 'adjust');
     setDeleteMode(mode === 'delete');
+    setMoveMode(mode === 'move');
     setSelectedRanges([]);
     setManuallySelectedPoints([]);
     setSelectedIndex(null);
