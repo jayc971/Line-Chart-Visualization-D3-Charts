@@ -41,7 +41,6 @@ const LineChart = () => {
     setData(generateData());
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlePointClick = (event: any, d: DataPoint) => {
     if (deleteMode) {
       if (data.length <= 2) {
