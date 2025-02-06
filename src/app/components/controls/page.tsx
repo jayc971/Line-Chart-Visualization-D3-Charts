@@ -9,13 +9,13 @@ interface ModeControlsProps {
   onClearSelection: () => void;
 }
 
-const Controls: React.FC<ModeControlsProps> = ({
+const Controls = ({
   connectMode,
   adjustMode,
   deleteMode,
   onToggleMode,
   onClearSelection,
-}) => {
+}: ModeControlsProps) => {
   return (
     <div className="flex gap-4 mb-4">
       <button
