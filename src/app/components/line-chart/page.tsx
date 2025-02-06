@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import ChartComponent from '@/app/components/ChartComponent/ChartComponent'; 
-import { Controls } from '../controls/page';
+import Controls from '../controls/page';
 import { Tooltip } from '../tooltip/page';
 import { DataPoint } from '../type/type';
 

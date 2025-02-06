@@ -9,7 +9,7 @@ interface ModeControlsProps {
   onClearSelection: () => void;
 }
 
-export const Controls: React.FC<ModeControlsProps> = ({
+const Controls: React.FC<ModeControlsProps> = ({
   connectMode,
   adjustMode,
   deleteMode,
@@ -44,3 +44,5 @@ export const Controls: React.FC<ModeControlsProps> = ({
     </div>
   );
 };
+
+export default Controls; // This is the crucial change
