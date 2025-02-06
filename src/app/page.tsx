@@ -1,4 +1,4 @@
-import LineChart from "./components/line-chart/page"
+import LineChart from "./components/LineChart/LineChart"
 
 export default function Home() {
   return (
