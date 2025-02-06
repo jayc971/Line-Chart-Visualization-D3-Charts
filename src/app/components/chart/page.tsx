@@ -15,7 +15,7 @@ interface ChartProps {
   tooltipRef: React.MutableRefObject<d3.Selection<HTMLDivElement, unknown, null, undefined> | null>;
 }
 
-const ChartComponent: React.FC<ChartProps> = ({
+export const ChartComponent: React.FC<ChartProps> = ({
   data,
   selectedRanges,
   connectMode,
@@ -207,4 +207,3 @@ const ChartComponent: React.FC<ChartProps> = ({
 
   return <svg ref={svgRef} className="w-full max-w-4xl" />;
 };
-export default ChartComponent;
