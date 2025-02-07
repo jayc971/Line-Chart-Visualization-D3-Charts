@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import React, { JSX } from 'react';
-import { Activity, Move, Trash2, X } from 'lucide-react';
+import React from 'react';
+import { Activity, Move, Trash2 } from 'lucide-react';
 
 interface ModeControlsProps {
   connectMode: boolean;
@@ -10,12 +10,12 @@ interface ModeControlsProps {
   onToggleMode: (mode: 'connect' | 'adjust' | 'delete') => void;
 }
 
-const Controls = ({
+const Controls: React.FC<ModeControlsProps> = ({
   connectMode,
   adjustMode,
   deleteMode,
   onToggleMode,
-}: ModeControlsProps): JSX.Element => {
+}) => {
   return (
     <div className="flex gap-4 mb-4">
       <button
