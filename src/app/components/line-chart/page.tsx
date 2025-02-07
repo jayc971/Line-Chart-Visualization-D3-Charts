@@ -6,6 +6,8 @@ import { Tooltip } from '../tooltip/page';
 import { DataPoint } from '../type/type';
 
 const LineChart = () => {
+  const [polygons, setPolygons] = useState<DataPoint[][]>([]);
+  const [selectedLines, setSelectedLines] = useState<DataPoint[][]>([]);
   const [selectedRanges, setSelectedRanges] = useState<DataPoint[][]>([]);
   const [manuallySelectedPoints, setManuallySelectedPoints] = useState<DataPoint[]>([]);
   const [connectMode, setConnectMode] = useState(false);
@@ -23,23 +25,45 @@ const LineChart = () => {
 
   useEffect(() => {
     const generateData = () => {
-      const points = [
-        0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120
-      ].map(rtime => ({
-        rtime,
-        intensity: Math.max(
-          10000 * Math.exp(-Math.pow(rtime - 20, 2) / 50),
-          8000 * Math.exp(-Math.pow(rtime - 40, 2) / 50),
-          9000 * Math.exp(-Math.pow(rtime - 60, 2) / 50),
-          9500 * Math.exp(-Math.pow(rtime - 80, 2) / 50),
-          8500 * Math.exp(-Math.pow(rtime - 100, 2) / 50)
-        )
-      }));
+      const points = Array.from({ length: 241 }, (_, i) => i * 0.5) 
+        .map(rtime => ({
+          rtime,
+          intensity: Math.max(
+            10000 * Math.exp(-Math.pow(rtime - 20, 2) / 50),
+            8000 * Math.exp(-Math.pow(rtime - 40, 2) / 50),
+            9000 * Math.exp(-Math.pow(rtime - 60, 2) / 50),
+            9500 * Math.exp(-Math.pow(rtime - 80, 2) / 50),
+            8500 * Math.exp(-Math.pow(rtime - 100, 2) / 50)
+          )
+        }));
       return points;
     };
-
+  
     setData(generateData());
   }, []);
+  
+  const handlePolygonsCreated = (newPolygons: DataPoint[][]) => {
+    setPolygons(prev => [...prev, ...newPolygons]);
+  };
+
+  const handleLineDrawn = (line: DataPoint[]) => {
+    setSelectedLines(prev => [...prev, line]);
+  };
+
+  const handleLineAdjusted = (lines: DataPoint[][]) => {
+    setSelectedLines(lines);
+  };
+
+  const handleLineDeleted = (index: number) => {
+    setSelectedLines(prev => prev.filter((_, i) => i !== index));
+    setPolygons(prev => prev.filter(p => p[0].lineIndex !== index));
+  };
+
+  const toggleMode = (mode: 'connect' | 'adjust' | 'delete') => {
+    setConnectMode(mode === 'connect');
+    setAdjustMode(mode === 'adjust');
+    setDeleteMode(mode === 'delete');
+  };
 
   const handlePointClick = (event: any, d: DataPoint) => {
     if (deleteMode) {
@@ -76,15 +100,6 @@ const LineChart = () => {
     setData(newData.sort((a, b) => a.rtime - b.rtime));
   };
 
-  const toggleMode = (mode: 'connect' | 'adjust' | 'delete') => {
-    setConnectMode(mode === 'connect');
-    setAdjustMode(mode === 'adjust');
-    setDeleteMode(mode === 'delete');
-    setSelectedRanges([]);
-    setManuallySelectedPoints([]);
-    setSelectedIndex(null);
-  };
-
   const clearSelection = () => {
     setSelectedRanges([]);
     setManuallySelectedPoints([]);
@@ -98,18 +113,18 @@ const LineChart = () => {
         adjustMode={adjustMode}
         deleteMode={deleteMode}
         onToggleMode={toggleMode}
-        onClearSelection={clearSelection}
       />
       <ChartComponent
         data={data}
-        selectedRanges={selectedRanges}
+        selectedLines={selectedLines}
         connectMode={connectMode}
         adjustMode={adjustMode}
         deleteMode={deleteMode}
-        selectedIndex={selectedIndex}
-        onPointClick={handlePointClick}
-        onPointDrag={handlePointDrag}
+        onLineDrawn={handleLineDrawn}
+        onLineAdjusted={handleLineAdjusted}
+        onLineDeleted={handleLineDeleted}
         tooltipRef={tooltipRef}
+        onPolygonsCreated={handlePolygonsCreated}
       />
     </div>
   );

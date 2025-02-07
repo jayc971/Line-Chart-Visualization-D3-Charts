@@ -8,7 +8,6 @@ interface ModeControlsProps {
   adjustMode: boolean;
   deleteMode: boolean;
   onToggleMode: (mode: 'connect' | 'adjust' | 'delete') => void;
-  onClearSelection: () => void;
 }
 
 const Controls = ({
@@ -16,7 +15,6 @@ const Controls = ({
   adjustMode,
   deleteMode,
   onToggleMode,
-  onClearSelection,
 }: ModeControlsProps): JSX.Element => {
   return (
     <div className="flex gap-4 mb-4">
@@ -44,14 +42,6 @@ const Controls = ({
       >
         <Trash2 size={24} />
       </button>
-      {connectMode && (
-        <button 
-          className="p-2 hover:bg-red-500 rounded bg-red-600 text-white" 
-          onClick={onClearSelection}
-        >
-          <X size={24} />
-        </button>
-      )}
     </div>
   );
 };
