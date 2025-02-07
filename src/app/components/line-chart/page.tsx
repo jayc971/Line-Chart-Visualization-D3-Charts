@@ -1,9 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react';
 import ChartComponent from '@/app/components/ChartComponent/ChartComponent'; 
-import Controls from '@/app/components/controls/page';
 import { Tooltip } from '../tooltip/page';
 import { DataPoint } from '../type/type';
+import Controls from '@/app/components/controls/Controls'; 
 
 const LineChart = () => {
   const [polygons, setPolygons] = useState<DataPoint[][]>([]);
